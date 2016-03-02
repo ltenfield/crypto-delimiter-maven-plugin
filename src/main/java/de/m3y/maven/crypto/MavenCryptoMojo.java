@@ -1,6 +1,7 @@
 package de.m3y.maven.crypto;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -9,6 +10,7 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
@@ -22,7 +24,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.io.FileInputStreamFacade;
+import org.codehaus.plexus.util.io.InputStreamFacade;
 
 /**
  * Supports de- and encryption of artifacts.
@@ -238,7 +240,9 @@ public class MavenCryptoMojo extends AbstractMojo {
             getLog().debug("Crypting " + pSourceFile + " to " + pTargetFile);
         }
         long time = System.currentTimeMillis();
-        FileUtils.copyStreamToFile(new CryptoFileInputStreamFacade(pSourceFile, pCipher), pTargetFile);
+        FileInputStream pStream = new FileInputStream(pSourceFile);
+		CryptoInputStreamFacade encryptedInputStream = new CryptoInputStreamFacade(pStream, pCipher);
+		FileUtils.copyStreamToFile(encryptedInputStream, pTargetFile);
         time = System.currentTimeMillis() - time;
 
         // Show what's going on ...
@@ -255,16 +259,17 @@ public class MavenCryptoMojo extends AbstractMojo {
         getLog().info(buf);
     }
 
-    private static class CryptoFileInputStreamFacade extends FileInputStreamFacade {
+    private static class CryptoInputStreamFacade implements InputStreamFacade {
+    	private InputStream inputStream;
         private Cipher cipher;
 
-        public CryptoFileInputStreamFacade(final File pFile, Cipher pCipher) {
-            super(pFile);
-            cipher = pCipher;
+        public CryptoInputStreamFacade(final InputStream pStream, Cipher pCipher) {
+        	this.inputStream = pStream;
+            this.cipher = pCipher;
         }
 
         public InputStream getInputStream() throws IOException {
-            return new CipherInputStream(super.getInputStream(), cipher);
+            return new CipherInputStream(inputStream, cipher);
         }
     }
 
