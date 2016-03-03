@@ -83,6 +83,8 @@ public class MavenCryptoMojo extends AbstractMojo {
         public String secret;
         public String keyDigest;
         public String initVector;
+        public String beginDelimiter;
+        public String endDelimiter;
 
         public boolean hasInitVector() {
             return null != initVector && initVector.length() > 0;
@@ -98,6 +100,11 @@ public class MavenCryptoMojo extends AbstractMojo {
 
         public boolean hasKeyDigest() {
             return null != keyDigest && keyDigest.length() > 0;
+        }
+        
+        public boolean hasDelimiters() {
+        	return (null != beginDelimiter && beginDelimiter.length() > 0)
+        			&& (null != endDelimiter && endDelimiter.length() > 0);
         }
     }
 
@@ -174,7 +181,7 @@ public class MavenCryptoMojo extends AbstractMojo {
         }
     }
 
-    private byte[] getCipherKey(final CipherOptions pOptions) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    private byte[] getCipherKey(final CipherOptions pOptions) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
         byte[] key;
         if (pOptions.hasKeyDigest()) {
             getLog().info("Using " + pOptions.keyDigest + " digest of secret key");
@@ -182,8 +189,12 @@ public class MavenCryptoMojo extends AbstractMojo {
             digest.reset();
             digest.update(pOptions.secret.getBytes("UTF8"));
             key = digest.digest();
-        } else {
-            key = pOptions.secret.getBytes("UTF8");
+        } else { // if no Digest is provided, decode key from Base64 character string
+        	if (pOptions.secret == null || pOptions.secret.isEmpty())
+        		throw new InvalidKeyException("secret must be defined in cipherOptions");
+        	key = DatatypeConverter.parseBase64Binary(pOptions.secret);
+        	if (getLog().isDebugEnabled())
+        		getLog().debug("Decoded Base64 key");
         }
         return key;
     }
