@@ -130,6 +130,7 @@
         <version>2.7</version>
       </plugin>
       <plugin>
+      	<!--mvn org.apache.maven.plugins:maven-invoker-plugin:1.10:run to run without installing  -->
       	<groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-invoker-plugin</artifactId>
         <version>1.10</version>
