@@ -90,6 +90,12 @@
       <version>6.9.10</version>
       <scope>test</scope>
     </dependency>
+    <!-- testing invoker should be removed -->
+	<dependency>
+	  <groupId>org.apache.maven.plugins</groupId>
+	  <artifactId>maven-invoker-plugin</artifactId>
+	  <version>1.10</version>
+	</dependency>    
   </dependencies>
 
   <build>
@@ -124,8 +130,9 @@
         <version>2.7</version>
       </plugin>
       <plugin>
+      	<groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-invoker-plugin</artifactId>
-        <version>1.8</version>
+        <version>1.10</version>
         <configuration>
           <projectsDirectory>src/it</projectsDirectory>
           <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
@@ -137,6 +144,8 @@
           </filterProperties>
           <showVersion>true</showVersion>
           <showErrors>true</showErrors>
+          <!-- invokerProperties must be part of target project directory root -->
+          <invokerPropertiesFile>invoker.properties</invokerPropertiesFile>
         </configuration>
         <executions>
           <execution>
@@ -284,30 +293,6 @@
           </plugin>
         </plugins>
       </reporting>
-    </profile>
-    <profile>
-      <id>release</id>
-      <distributionManagement>
-        <repository>
-          <id>consol-mena-releases</id>
-          <url>http://maven.int.consol.ae/content/repositories/releases</url>
-        </repository>
-      </distributionManagement>
-      <!--
-      <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <artifactId>maven-release-plugin</artifactId>
-              <version>2.2.1</version>
-              <configuration>
-                <releaseProfiles>site</releaseProfiles>
-              </configuration>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-      </build>
-      -->
     </profile>
   </profiles>
 </project>

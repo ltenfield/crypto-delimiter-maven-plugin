@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>de.m3y.maven</groupId>
-  <artifactId>crypto-maven-plugin-it</artifactId>
+  <groupId>org.osa</groupId>
+  <artifactId>crypto-delimiter-maven-plugin-it</artifactId>
   <packaging>jar</packaging>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.4-SNAPSHOT</version>
   <name>Maven Crypto Plugin IT</name>
 
   <properties>
@@ -12,12 +12,14 @@
   </properties>
 
   <build>
-    <defaultGoal>de.m3y.maven:crypto-maven-plugin:crypto</defaultGoal>
+  	<!-- defaultGoal does not function within maven-invoker-plugin integration test
+  	invoker.proerties is necessary to specify goal org.osa:crypto-delimiter-maven-plugin:crypto -->
+    <defaultGoal>org.osa:crypto-delimiter-maven-plugin:crypto</defaultGoal>
     <plugins>
       <plugin>
-        <groupId>de.m3y.maven</groupId>
-        <artifactId>crypto-maven-plugin</artifactId>
-        <version>0.2-SNAPSHOT</version>
+        <groupId>org.osa</groupId>
+        <artifactId>crypto-delimiter-maven-plugin</artifactId>
+        <version>0.4-SNAPSHOT</version>
         <configuration>
           <fileSets>
             <fileSet>
@@ -31,6 +33,7 @@
             <algorithmPadding>PKCS5Padding</algorithmPadding>
             <secret>m3y</secret>
             <keyDigest>MD5</keyDigest>
+            <initVector>j2F/v0Bqb95cQwsOy7A2mg==</initVector>
           </cipherOptions>
         </configuration>
       </plugin>
