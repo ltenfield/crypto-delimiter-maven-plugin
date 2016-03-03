@@ -1,4 +1,4 @@
-package de.m3y.maven.crypto;
+package org.osa;
 
 import java.io.File;
 import java.io.FileInputStream;
