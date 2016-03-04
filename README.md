@@ -1,17 +1,53 @@
-Maven Crypto Plugin
+Maven Delimiter Crypto Plugin
 ==================================
 
-The plugin *crypto-maven-plugin* lets you encrypt and decrypt artifacts.
+The plugin *crypto-delimiter-maven-plugin* lets you encrypt and decrypt source text files within start and end delimiters.
+
+Note: encrypted text is base64 encoded to allow ediing with text editor
 
 
-What is it good for?
+Overview
 --------------------
 
-* Encrypt generated artefacts
 
-Check out the [plugin web site][site] for details.
+1) create a maven project with pom.xml indicating files to encrypt via filesets and cipherOptions
 
-[site]: http://labs.consol.de/projects/maven/crypt-maven-plugin/
+<project>
+  <build>
+   <defaultGoal>org.osa:crypto-delimiter-maven-plugin:crypto</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.osa</groupId>
+        <artifactId>crypto-delimiter-maven-plugin</artifactId>
+        <version>0.4-SNAPSHOT</version>
+        <configuration>
+          <fileSets>
+            <fileSet>
+              <directory>src/test/example</directory>
+              <!--<outputDirectory>/</outputDirectory> -->
+              <include>*.properties</include>
+            </fileSet>
+          </fileSets>
+          <cipherOptions>
+            <operationMode>encrypt</operationMode>
+            <algorithm>AES</algorithm>
+            <algorithmMode>ECB</algorithmMode>
+            <algorithmPadding>PKCS5Padding</algorithmPadding>
+            <secret>4IGGEPu/81QQxC62yOuFoQ==</secret>
+            <startDelimiter>ENC(</startDelimiter>
+            <endDelimiter>)</endDelimiter>
+            <keepDelimiters>true</keepDelimiters>
+          </cipherOptions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
+see [wikipedia Base64 specification][site]
+[site]https://en.wikipedia.org/wiki/Base64
+
+see src/it/encrypt and src/it/decrypt for examples within source code
 
 Development
 -----------
@@ -20,7 +56,7 @@ Development
 
     mvn clean install
 
-  Make sure you got [Maven 3.0.3+][maven_download] or higher.
+  Make sure you got [Maven 3.2.1+][maven_download] or higher.
 
 * Build the site (and the optional example report)
 
