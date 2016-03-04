@@ -46,7 +46,7 @@ Overview
 </project>
 ```
 
-see [wikipedia Base64 specification]: <https://en.wikipedia.org/wiki/Base64>
+see wikipedia Base64 specification: <https://en.wikipedia.org/wiki/Base64>
 
 see src/it/encrypt and src/it/decrypt for examples within source code
 
