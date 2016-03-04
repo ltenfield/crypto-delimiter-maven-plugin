@@ -12,6 +12,7 @@ Overview
 
 1) create a maven project with pom.xml indicating files to encrypt via filesets and cipherOptions
 
+```xml
 <project>
   <build>
    <defaultGoal>org.osa:crypto-delimiter-maven-plugin:crypto</defaultGoal>
@@ -43,9 +44,9 @@ Overview
     </plugins>
   </build>
 </project>
+```
 
-see [wikipedia Base64 specification][site]
-[site]https://en.wikipedia.org/wiki/Base64
+see [wikipedia Base64 specification]: <https://en.wikipedia.org/wiki/Base64>
 
 see src/it/encrypt and src/it/decrypt for examples within source code
 
