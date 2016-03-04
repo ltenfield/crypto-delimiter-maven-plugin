@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -18,6 +19,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.maven.model.FileSet;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -83,8 +85,9 @@ public class MavenCryptoMojo extends AbstractMojo {
         public String secret;
         public String keyDigest;
         public String initVector;
-        public String beginDelimiter;
+        public String startDelimiter;
         public String endDelimiter;
+        public boolean keepDelimiters;
 
         public boolean hasInitVector() {
             return null != initVector && initVector.length() > 0;
@@ -103,7 +106,7 @@ public class MavenCryptoMojo extends AbstractMojo {
         }
         
         public boolean hasDelimiters() {
-        	return (null != beginDelimiter && beginDelimiter.length() > 0)
+        	return (null != startDelimiter && startDelimiter.length() > 0)
         			&& (null != endDelimiter && endDelimiter.length() > 0);
         }
     }
@@ -209,8 +212,10 @@ public class MavenCryptoMojo extends AbstractMojo {
             String targetFile = updateTargetFilename(file, ext);
             handleFile(new File(dir, file), new File(getOutputDirectory(), targetFile), pCipher, padding);
         }
-        if (!options.hasInitVector()) {
-            getLog().info("Generated initialization vector is " + DatatypeConverter.printBase64Binary(pCipher.getIV()));
+        if (options.hasInitVector()) {
+        	byte[] iv = pCipher.getIV();
+        	String base64String = DatatypeConverter.printBase64Binary(iv);
+            getLog().info("Generated initialization vector is [" + base64String + "]");
         }
     }
 
@@ -252,7 +257,12 @@ public class MavenCryptoMojo extends AbstractMojo {
         }
         long time = System.currentTimeMillis();
         FileInputStream pStream = new FileInputStream(pSourceFile);
-		CryptoInputStreamFacade encryptedInputStream = new CryptoInputStreamFacade(pStream, pCipher);
+		InputStreamFacade encryptedInputStream = new CryptoDelimitedInputStreamFacade(
+				cipherOptions.startDelimiter
+				,cipherOptions.endDelimiter
+				,cipherOptions.keepDelimiters
+				,pStream,pCipher
+				,getCipherOptions().operationMode.asInt() == Cipher.DECRYPT_MODE);
 		FileUtils.copyStreamToFile(encryptedInputStream, pTargetFile);
         time = System.currentTimeMillis() - time;
 
@@ -282,6 +292,35 @@ public class MavenCryptoMojo extends AbstractMojo {
         public InputStream getInputStream() throws IOException {
             return new CipherInputStream(inputStream, cipher);
         }
+    }
+    
+    private static class CryptoDelimitedInputStreamFacade implements InputStreamFacade {
+    	private InputStream inputstream;
+    	private String startDelimiter,endDelimiter;
+    	private Cipher cipher;
+    	private boolean keepDelimiter;
+    	private boolean decodeBase64;
+
+    	public CryptoDelimitedInputStreamFacade(String startDelimiter,String endDelimiter,boolean keepDelimiter
+    			,InputStream inputStream,Cipher cipher,boolean decodeBase64) {
+    		this.startDelimiter = startDelimiter;
+    		this.endDelimiter = endDelimiter;
+    		this.inputstream = inputStream;
+    		this.cipher = cipher;
+    		this.keepDelimiter = keepDelimiter;
+    		this.decodeBase64 = decodeBase64;
+    	}
+
+		public InputStream getInputStream() throws IOException {
+			InputStreamReader isr = new InputStreamReader(inputstream);
+			StringTransformer encst = new CipherStringEncryptTransformer(cipher,decodeBase64);
+			DelimitedTransformationReader dtr = new DelimitedTransformationReader(isr, startDelimiter, endDelimiter, keepDelimiter, encst);
+			InputStream delimitedInputStreamReader = new ReaderInputStream(dtr);
+			return delimitedInputStreamReader;
+		}
+    	
+    	
+    	
     }
 
     public List<FileSet> getFileSets() {

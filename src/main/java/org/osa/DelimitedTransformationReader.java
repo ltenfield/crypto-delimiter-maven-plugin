@@ -3,6 +3,7 @@ package org.osa;
 import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
+import org.osa.StringTransformer;
 
 public class DelimitedTransformationReader extends FilterReader {
 
@@ -10,12 +11,14 @@ public class DelimitedTransformationReader extends FilterReader {
 	StringTransformer stringTransformer;
 	char[] readAheadChars = new char[2048];
 	int readAheadCharsLen = 0, readAheadOff = 0;
+	boolean keepDelimiters = true;
 
 	public DelimitedTransformationReader(Reader in, String startDelimiter,
-			String endDelimiter, StringTransformer stringTransformer) {
+			String endDelimiter, boolean keepDelimiters,StringTransformer stringTransformer) {
 		super(in);
 		this.startDelimiter = startDelimiter;
 		this.endDelimiter = endDelimiter;
+		this.keepDelimiters = keepDelimiters;
 		this.stringTransformer = stringTransformer;
 	}
 
@@ -55,20 +58,20 @@ public class DelimitedTransformationReader extends FilterReader {
 					} catch (Exception e) {
 						throw new IllegalStateException("Cipher malfunction on[" + stringToTransform + "]",e);
 					}
-					int shiftleft = stringToTransform.length() + startDelimiter.length() + endDelimiter.length() - transformedString.length();
-					if (shiftleft > 0) {
-						if ((endsWith + readAheadOff) < readAheadCharsLen)
-							System.arraycopy(readAheadChars,endsWith + readAheadOff
-									,readAheadChars,endsWith - shiftleft + readAheadOff, readAheadCharsLen - shiftleft);
-						readAheadCharsLen -= shiftleft;
+					int delimiterTotalLength = keepDelimiters ? 0 : startDelimiter.length() + endDelimiter.length();
+					int shiftleft = stringToTransform.length() + delimiterTotalLength - transformedString.length();
+					if (shiftleft != 0) {
+						System.arraycopy(readAheadChars,endsWith + readAheadOff - (keepDelimiters ? endDelimiter.length() : 0)
+								,readAheadChars,endsWith - shiftleft + readAheadOff - (keepDelimiters ? endDelimiter.length() : 0), readAheadCharsLen - shiftleft);
 					}
+					readAheadCharsLen -= shiftleft;
 					// here we assume shiftleft is always 0 or positive, that is transformed string is alwyas equal or shorter
 					char[] transformedChars = transformedString.toCharArray();
-					int startsWithBeforeDelimiter = startsWith - startDelimiter.length();
-					System.arraycopy(transformedChars, 0, readAheadChars, startsWithBeforeDelimiter + readAheadOff , transformedString.length());
+					int startTransformPosition = startsWith - (keepDelimiters ? 0 :  startDelimiter.length());
+					System.arraycopy(transformedChars, 0, readAheadChars, startTransformPosition + readAheadOff , transformedString.length());
 				}
 			}
-			int charsToOuput = Math.min(len - outputedChars, (startsWith > 0 && endsWith < startsWith ? startsWith : readAheadCharsLen));
+			int charsToOuput = Math.min(len - outputedChars, readAheadCharsLen);
 			if (charsToOuput > 0) {
 				System.arraycopy(readAheadChars, readAheadOff, cbuf, off + outputedChars,charsToOuput);
 				readAheadCharsLen -= charsToOuput;

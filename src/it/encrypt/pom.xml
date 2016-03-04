@@ -24,16 +24,18 @@
           <fileSets>
             <fileSet>
               <directory>src/test/example</directory>
+              <include>*.properties</include>
             </fileSet>
           </fileSets>
           <cipherOptions>
             <operationMode>encrypt</operationMode>
             <algorithm>AES</algorithm>
-            <algorithmMode>CBC</algorithmMode>
+            <algorithmMode>ECB</algorithmMode>
             <algorithmPadding>PKCS5Padding</algorithmPadding>
-            <secret>m3y</secret>
-            <keyDigest>MD5</keyDigest>
-            <initVector>j2F/v0Bqb95cQwsOy7A2mg==</initVector>
+            <secret>4IGGEPu/81QQxC62yOuFoQ==</secret>
+            <startDelimiter>ENC(</startDelimiter>
+            <endDelimiter>)</endDelimiter>
+            <keepDelimiters>true</keepDelimiters>
           </cipherOptions>
         </configuration>
       </plugin>
