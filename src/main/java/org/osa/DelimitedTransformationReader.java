@@ -3,7 +3,6 @@ package org.osa;
 import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
-import org.osa.StringTransformer;
 
 public class DelimitedTransformationReader extends FilterReader {
 
@@ -40,10 +39,9 @@ public class DelimitedTransformationReader extends FilterReader {
 				if (result < 0) { // no more chars to read, empty out char buffer
 					int maxCharsOut = readAheadCharsLen < len ? readAheadCharsLen : len;
 					if (maxCharsOut < 1) return outputedChars > 0 ? outputedChars : -1;
-					System.arraycopy(readAheadChars, readAheadOff, cbuf, off,maxCharsOut);
-					return maxCharsOut;
-				}
-				readAheadCharsLen += result;
+					// simply empty the buffer
+				} else
+					readAheadCharsLen += result;
 			}
 			int startsWith = startsWithReadAhead(startDelimiter,false);
 			int endsWith = 0;
