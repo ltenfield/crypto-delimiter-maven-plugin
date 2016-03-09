@@ -136,6 +136,13 @@ public class MavenCryptoMojo extends AbstractMojo {
      */
     private CipherOptions cipherOptions;
     
+   /**
+    * Flag that indicates if a file extension based on the cipher transformation is added to file name suffix
+    * 
+    * @parameter default-value=true
+    */
+    boolean addFileExtension;
+    
     public class CipherInitialization {
     	final Cipher cipher;
     	final SecretKeySpec keySpec;
@@ -150,7 +157,7 @@ public class MavenCryptoMojo extends AbstractMojo {
         CipherInitialization cipherinit = createCipher();
         try {
             for (FileSet fileSet : getFileSets()) {
-                handle(fileSet, cipherinit);
+                handle(fileSet, cipherinit,addFileExtension);
             }
         } catch (IOException e) {
             throw new MojoFailureException("Failed to execute", e);
@@ -214,14 +221,14 @@ public class MavenCryptoMojo extends AbstractMojo {
         return key;
     }
 
-    private void handle(final FileSet pFileSet, final CipherInitialization pCipherinit) throws IOException {
+    private void handle(final FileSet pFileSet, final CipherInitialization pCipherinit,boolean addFileExtension) throws IOException {
         File dir = new File(pFileSet.getDirectory());
         CipherOptions options = getCipherOptions();
         String ext = '.' + options.algorithm;
         final String[] files = scanIncludes(pFileSet);
         int padding = computePadding(files);
         for (String file : files) {
-            String targetFile = updateTargetFilename(file, ext);
+            String targetFile = addFileExtension ? updateTargetFilename(file, ext) : file;
             handleFile(new File(dir, file), new File(getOutputDirectory(), targetFile), pCipherinit, padding);
         }
         if (!options.hasInitVector()) {

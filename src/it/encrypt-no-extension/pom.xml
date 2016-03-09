@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.osa</groupId>
+  <artifactId>crypto-delimiter-maven-plugin-it</artifactId>
+  <packaging>jar</packaging>
+  <version>0.4-SNAPSHOT</version>
+  <name>Maven Crypto Plugin IT</name>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <build>
+  	<!-- defaultGoal does not function within maven-invoker-plugin integration test
+  	invoker.proerties is necessary to specify goal org.osa:crypto-delimiter-maven-plugin:crypto -->
+    <defaultGoal>org.osa:crypto-delimiter-maven-plugin:crypto</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.osa</groupId>
+        <artifactId>crypto-delimiter-maven-plugin</artifactId>
+        <version>0.4-SNAPSHOT</version>
+        <configuration>
+          <fileSets>
+            <fileSet>
+              <directory>src/test/example</directory>
+              <include>*.properties</include>
+            </fileSet>
+          </fileSets>
+          <cipherOptions>
+            <operationMode>encrypt</operationMode>
+            <algorithm>AES</algorithm>
+            <algorithmMode>ECB</algorithmMode>
+            <algorithmPadding>PKCS5Padding</algorithmPadding>
+            <secret>4IGGEPu/81QQxC62yOuFoQ==</secret>
+            <startDelimiter>ENC(</startDelimiter>
+            <endDelimiter>)</endDelimiter>
+            <keepDelimiters>true</keepDelimiters>
+          </cipherOptions>
+          <addFileExtension>false</addFileExtension>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
