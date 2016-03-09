@@ -45,6 +45,7 @@ public class DelimitedTransformationReader extends FilterReader {
 			}
 			int startsWith = startsWithReadAhead(startDelimiter,false);
 			int endsWith = 0;
+			int shiftleft = 0;
 			if (startsWith > 0) {
 				// even though we read all we can we continue while we have a start
 				endsWith = startsWithReadAhead(endDelimiter,true);
@@ -57,7 +58,7 @@ public class DelimitedTransformationReader extends FilterReader {
 						throw new IllegalStateException("Cipher malfunction on[" + stringToTransform + "]",e);
 					}
 					int delimiterTotalLength = keepDelimiters ? 0 : startDelimiter.length() + endDelimiter.length();
-					int shiftleft = stringToTransform.length() + delimiterTotalLength - transformedString.length();
+					shiftleft = stringToTransform.length() + delimiterTotalLength - transformedString.length();
 					if (shiftleft != 0) {
 						System.arraycopy(readAheadChars,endsWith + readAheadOff - (keepDelimiters ? endDelimiter.length() : 0)
 								,readAheadChars,endsWith - shiftleft + readAheadOff - (keepDelimiters ? endDelimiter.length() : 0), readAheadCharsLen - shiftleft);
@@ -69,7 +70,7 @@ public class DelimitedTransformationReader extends FilterReader {
 					System.arraycopy(transformedChars, 0, readAheadChars, startTransformPosition + readAheadOff , transformedString.length());
 				}
 			}
-			int charsToOuput = Math.min(len - outputedChars, readAheadCharsLen);
+			int charsToOuput = Math.min(len - outputedChars, endsWith > 0 ? endsWith - shiftleft : readAheadCharsLen);
 			if (charsToOuput > 0) {
 				System.arraycopy(readAheadChars, readAheadOff, cbuf, off + outputedChars,charsToOuput);
 				readAheadCharsLen -= charsToOuput;
