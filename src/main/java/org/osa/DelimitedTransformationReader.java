@@ -58,13 +58,13 @@ public class DelimitedTransformationReader extends FilterReader {
 						throw new IllegalStateException("Cipher malfunction on[" + stringToTransform + "]",e);
 					}
 					int delimiterTotalLength = keepDelimiters ? 0 : startDelimiter.length() + endDelimiter.length();
+					// shiftleft to adjust read ahead buffer space to write in transformed string, that can be shorter or longer than stringToTransform
 					shiftleft = stringToTransform.length() + delimiterTotalLength - transformedString.length();
 					if (shiftleft != 0) {
 						System.arraycopy(readAheadChars,endsWith + readAheadOff - (keepDelimiters ? endDelimiter.length() : 0)
 								,readAheadChars,endsWith - shiftleft + readAheadOff - (keepDelimiters ? endDelimiter.length() : 0), readAheadCharsLen - shiftleft);
 					}
 					readAheadCharsLen -= shiftleft;
-					// here we assume shiftleft is always 0 or positive, that is transformed string is alwyas equal or shorter
 					char[] transformedChars = transformedString.toCharArray();
 					int startTransformPosition = startsWith - (keepDelimiters ? 0 :  startDelimiter.length());
 					System.arraycopy(transformedChars, 0, readAheadChars, startTransformPosition + readAheadOff , transformedString.length());
