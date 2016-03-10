@@ -21,9 +21,10 @@
         <artifactId>crypto-delimiter-maven-plugin</artifactId>
         <version>0.4-SNAPSHOT</version>
         <configuration>
+          <outputDirectory>target/generated-resources</outputDirectory>
           <fileSets>
             <fileSet>
-              <directory>src/test/example</directory>
+               <directory>src/test/example</directory>
               <include>*.properties</include>
             </fileSet>
           </fileSets>

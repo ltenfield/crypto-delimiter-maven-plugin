@@ -49,7 +49,8 @@ public class DelimitedTransformationReader extends FilterReader {
 			if (startsWith > 0) {
 				// even though we read all we can we continue while we have a start
 				endsWith = startsWithReadAhead(endDelimiter,true);
-				if (endsWith > 0) { // we have a complete delimited char sequence
+				// if endsWith < startsWith we know that there is a left over in the buffer
+				if (endsWith > startsWith) { // we have a complete delimited char sequence
 					String stringToTransform = String.copyValueOf(readAheadChars,startsWith + readAheadOff , endsWith - startsWith - endDelimiter.length());
 					String transformedString;
 					try {
@@ -76,6 +77,11 @@ public class DelimitedTransformationReader extends FilterReader {
 				readAheadCharsLen -= charsToOuput;
 				readAheadOff += charsToOuput;
 				outputedChars += charsToOuput;
+				// shift remaining characters in buffer to beginning of buffer to make room for incoming read ahead characters
+				if (readAheadOff > 0) {
+					System.arraycopy(readAheadChars, readAheadOff, readAheadChars, 0, readAheadCharsLen);
+					readAheadOff = 0;
+				}
 				if (readAheadCharsLen < 1) readAheadOff = 0; // all read then reset to start of read ahead buffer
 			}
 		}

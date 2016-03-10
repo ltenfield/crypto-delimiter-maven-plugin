@@ -222,7 +222,28 @@ public class MavenCryptoMojo extends AbstractMojo {
     }
 
     private void handle(final FileSet pFileSet, final CipherInitialization pCipherinit,boolean addFileExtension) throws IOException {
+        if (pFileSet == null) {
+        	getLog().error("undefined fileset, skipping");
+        	return;
+        }
         File dir = new File(pFileSet.getDirectory());
+        File outdir = getOutputDirectory();
+        if (outdir == null) {
+        	getLog().error("unbdefined output directory");
+        	return;
+        }
+        if (!outdir.exists()) { 
+        	getLog().info("Directory [" + outdir.getCanonicalPath() + "] does not exist attempting to create");
+        	boolean mkdirsResult = outdir.mkdirs();
+        	if (!mkdirsResult) {
+        		getLog().error("Directory [" + outdir.getCanonicalPath() + "] can not be created, skipping file set");
+        		return;
+        	}
+        }
+        if (!outdir.canWrite()) {
+    		getLog().error("Directory [" + outdir.getCanonicalPath() + "] can not write, skipping file set");
+    		return;        	
+        }
         CipherOptions options = getCipherOptions();
         String ext = '.' + options.algorithm;
         final String[] files = scanIncludes(pFileSet);
