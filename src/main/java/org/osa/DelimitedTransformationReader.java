@@ -63,7 +63,8 @@ public class DelimitedTransformationReader extends FilterReader {
 					shiftleft = stringToTransform.length() + delimiterTotalLength - transformedString.length();
 					if (shiftleft != 0) {
 						System.arraycopy(readAheadChars,endsWith + readAheadOff - (keepDelimiters ? endDelimiter.length() : 0)
-								,readAheadChars,endsWith - shiftleft + readAheadOff - (keepDelimiters ? endDelimiter.length() : 0), readAheadCharsLen - shiftleft);
+								,readAheadChars,endsWith - shiftleft + readAheadOff - (keepDelimiters ? endDelimiter.length() : 0)
+								,readAheadCharsLen - endsWith - shiftleft + (keepDelimiters ? endDelimiter.length() : 0));
 					}
 					readAheadCharsLen -= shiftleft;
 					char[] transformedChars = transformedString.toCharArray();
