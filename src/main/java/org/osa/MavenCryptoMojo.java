@@ -297,14 +297,11 @@ public class MavenCryptoMojo extends AbstractMojo {
             getLog().debug("Crypting " + pSourceFile + " to " + pTargetFile);
         }
         long time = System.currentTimeMillis();
-        FileInputStream pStream = new FileInputStream(pSourceFile);
-		InputStreamFacade encryptedInputStream = new CryptoDelimitedInputStreamFacade(
-				cipherOptions.startDelimiter
-				,cipherOptions.endDelimiter
-				,cipherOptions.keepDelimiters
-				,pStream,pCipherinit
-				,getCipherOptions().operationMode.asInt() == Cipher.DECRYPT_MODE);
-		FileUtils.copyStreamToFile(encryptedInputStream, pTargetFile);
+        StringTransformer encst = new CipherStringEncryptTransformer(
+        		pCipherinit.cipher,pCipherinit.keySpec
+        		,getCipherOptions().operationMode.asInt() == Cipher.DECRYPT_MODE);
+        DelimitedFileTransformer dft = new DelimitedFileTransformer(getLog(),cipherOptions.startDelimiter, cipherOptions.endDelimiter, cipherOptions.keepDelimiters, encst);
+        dft.transform(pSourceFile, pTargetFile);
         time = System.currentTimeMillis() - time;
 
         // Show what's going on ...
@@ -335,34 +332,6 @@ public class MavenCryptoMojo extends AbstractMojo {
         }
     }
     
-    private static class CryptoDelimitedInputStreamFacade implements InputStreamFacade {
-    	private InputStream inputstream;
-    	private String startDelimiter,endDelimiter;
-    	private CipherInitialization cipherinit;
-    	private boolean keepDelimiter;
-    	private boolean decryptBase64;
-
-    	public CryptoDelimitedInputStreamFacade(String startDelimiter,String endDelimiter,boolean keepDelimiter
-    			,InputStream inputStream,CipherInitialization cipherinit,boolean decryptBase64) {
-    		this.startDelimiter = startDelimiter;
-    		this.endDelimiter = endDelimiter;
-    		this.inputstream = inputStream;
-    		this.cipherinit = cipherinit;
-    		this.keepDelimiter = keepDelimiter;
-    		this.decryptBase64 = decryptBase64;
-    	}
-
-		public InputStream getInputStream() throws IOException {
-			InputStreamReader isr = new InputStreamReader(inputstream);
-			StringTransformer encst = new CipherStringEncryptTransformer(cipherinit.cipher,cipherinit.keySpec,decryptBase64);
-			DelimitedTransformationReader dtr = new DelimitedTransformationReader(isr, startDelimiter, endDelimiter, keepDelimiter, encst);
-			InputStream delimitedInputStreamReader = new ReaderInputStream(dtr);
-			return delimitedInputStreamReader;
-		}
-    	
-    	
-    	
-    }
 
     public List<FileSet> getFileSets() {
         return fileSets;
