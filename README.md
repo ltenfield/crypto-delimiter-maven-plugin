@@ -73,6 +73,11 @@ Development
 
     mvn release:perform
 
+* Useful links about using Ciphers and initializing block ciphers within the Java JDK
+  * [Using block modes and initialisation vectors in Java](https://www.javamex.com/tutorials/cryptography/block_modes_java.shtml)
+  * [Does AES/CBC really requires IV parameter?](https://stackoverflow.com/questions/20888851/does-aes-cbc-really-requires-iv-parameter)
+  * [AES Encryption IV's](https://stackoverflow.com/questions/35907877/aes-encryption-ivs)
+
 * Sample projects under the it directory encrypt
 
 Simply copy the `encrypt` sub-directory within the `it` directory where **encrypt** is a self contained example maven project using this plugin.
