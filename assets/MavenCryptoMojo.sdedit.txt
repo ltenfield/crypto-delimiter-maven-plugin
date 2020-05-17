@@ -1,0 +1,58 @@
+m:Maven
+mcm: MavenCryptoMojo
+/sks: SecretKeySpec
+/c:Cipher
+/cset:CipherStringEncryptTransformer
+/dft:DelimitedFileTransformer
+
+m:mcm.setLog(Log)
+m:mcm.setPluginCXontext(Map)
+m:mcm.setFileSet(FileSet)
+m:done=mcm.excute()
+mcm:mcm.createCipher()
+mcm:options=mcm.getCipherOptions()&
+mcm:key=mcm.getCipherKey()&
+(1) mcm:sks.new(key,options.algorithm)
+*1 mcm
+key = Base64KeyString
+algorithm = AES
+*1
+(2) mcm:cipher=c.new(algorithmSpec)
+*2 mcm
+algorithmSpec is cipher configuration string
+AES/ECB/PKCS5Padding
+*2
+(3) c:c.init(operationMode, sks)
++3 mcm
+operationMode = encrypt or decrypt
++3
+[c:loop for fileset in FileSets]
+mcm:mcm.handle(fileset,cipher,addFileExtension)
+mcm:dir=mcm.fileset.getDirectory()&
+mcm:outdir=mcm.getOutputDir()&
+(4) mcm:files=mcm.scanIncludes(fileset)
++4 mcm
+String[] files= Array of files to process 
++4
+[c:loop for file in files]
+[c:alt if addFileExtension == true]
+mcm:targetFile=mcm.updateTargetFilename(file,ext)
+[/c]
+mcm:mcm.handleFile(new File(dir, file), new File(getOutputDirectory(),targetFile), pCipherinit, padding)
+mcm:encst=cset.new(cipher,keySpec,getCipherOptions().operationMode)
+mcm:dft=dft.new(cipherOptions.startDelimiter, cipherOptions.endDelimiter, cipherOptions.keepDelimiters, encst)
+mcm:dft.transform(pSourceFile, pTargetFile)
+[c:loop for line in file]
+dft:m=dft.regexTargetPattern.matcher(line)&
+dft:prefix=dft.m.group(1)&
+dft:startDelimiter=dft.m.group(2)&
+dft:target=dft.m.group(3)&
+dft:endDelimiter=dft.m.group(4)&
+dft:transformedTarget=cset.transform(target)
+[/c]
+mcm:dft.destroy()
+mcm:cset.destroy()
+[/c]
+[/c]
+mcm:c.destroy()
+mcm:sks.destroy()

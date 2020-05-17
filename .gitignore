@@ -1,4 +1,8 @@
 **/target/
+bin/
+.attach*
+.factorypath
+.metadata/
 .classpath
 .project
 .settings/
