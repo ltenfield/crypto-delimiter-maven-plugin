@@ -5,10 +5,12 @@ The plugin *crypto-delimiter-maven-plugin* lets you encrypt and decrypt source t
 
 Note: encrypted text is base64 encoded to allow ediing with text editor
 
+Acknowledgement
+---------------
+This plugin was forked from MacelMay's [Maven Crypto Plugin](https://github.com/marcelmay/crypto-maven-plugin) that was designed to ecrypt entire files.
 
 Overview
 --------------------
-
 
 1) create a maven project with pom.xml indicating files to encrypt via filesets and cipherOptions
 
